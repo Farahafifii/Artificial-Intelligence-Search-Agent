@@ -12,10 +12,18 @@ public class GenericSearch {
     public int materialsUseBUILD1, energyUseBUILD1, prosperityBUILD1;
     public int priceBUILD2, foodUseBUILD2;
     public int materialsUseBUILD2, energyUseBUILD2, prosperityBUILD2;
-    public int monetary_cost = 0 ;
 
+
+
+    public int food = initialFood;
+    public int materials = initialMaterials;
+    public int energy = initialEnergy;
+    public int monetary_cost = 0 ;
+    public int prosperity = initialProsperity ;
     public boolean isWaiting = false ;
     public boolean isDelivering = false ;
+
+
 
     public static String[][] splitString(String input) {
         String[] semiColonSplit = input.split(";");
