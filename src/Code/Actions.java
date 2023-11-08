@@ -5,23 +5,30 @@ import javax.swing.*;
 public class Actions extends GenericSearch {
 
 public void RequestFood() {
-    this.food--;
-    this.monetary_cost += this.unitPriceFood;
-    if(isWaiting&&isDelivering){
+    if(this.food!=0){
+        this.food--;
+        this.monetary_cost += this.unitPriceFood;
+    }
+    if(isWaiting && isDelivering){
         this.food += this.amountRequestFood;
     }
 }
 public void RequestMaterials() {
-	this.materials--;
-    this.monetary_cost += this.unitPriceMaterials;
-    if(isWaiting&&isDelivering){
+    if(this.materials!=0){
+        this.materials--;
+        this.monetary_cost += this.unitPriceMaterials;
+    }
+    if(isWaiting && isDelivering){
         this.materials += this.amountRequestMaterials;
     }
 }
 public void RequestEnergy() {
-    this.energy --;
-	this.monetary_cost += this.unitPriceEnergy;
-    if(isWaiting&&isDelivering){
+    if(this.energy!=0){
+        this.energy --;
+        this.monetary_cost += this.unitPriceEnergy;
+    }
+
+    if(isWaiting && isDelivering){
         this.energy += this.amountRequestEnergy;
     }
 }
