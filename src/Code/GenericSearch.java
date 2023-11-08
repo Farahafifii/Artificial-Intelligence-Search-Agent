@@ -1,45 +1,38 @@
 package Code;
 
-public class GenericSearch {
+import java.util.*;
 
-    public int initialProsperity;
-    public int initialFood, initialMaterials, initialEnergy;
-    public int unitPriceFood, unitPriceMaterials, unitPriceEnergy;
-    public int amountRequestFood, delayRequestFood;
-    public int amountRequestMaterials, delayRequestMaterials;
-    public int amountRequestEnergy, delayRequestEnergy;
-    public int priceBUILD1, foodUseBUILD1;
-    public int materialsUseBUILD1, energyUseBUILD1, prosperityBUILD1;
-    public int priceBUILD2, foodUseBUILD2;
-    public int materialsUseBUILD2, energyUseBUILD2, prosperityBUILD2;
+public abstract class GenericSearch {
+    public static Node currNode; //initial State
+    public static List<Node> childNodes; //State Space
 
+    public static int unitPriceFood, unitPriceMaterials, unitPriceEnergy;
+    public static int amountRequestFood, delayRequestFood;
+    public static int amountRequestMaterials, delayRequestMaterials;
+    public static int amountRequestEnergy, delayRequestEnergy;
+    public static int priceBUILD1, foodUseBUILD1;
+    public static int materialsUseBUILD1, energyUseBUILD1, prosperityBUILD1;
+    public static int priceBUILD2, foodUseBUILD2;
+    public static int materialsUseBUILD2, energyUseBUILD2, prosperityBUILD2;
 
-
-    public int food = initialFood;
-    public int materials = initialMaterials;
-    public int energy = initialEnergy;
-    public int monetary_cost = 0 ;
-    public int prosperity = initialProsperity ;
+    public static int food ;
+    public static int materials ;
+    public static int energy;
+    public static int monetary_cost = 0 ;
+    public static int prosperity ;
     public boolean isWaiting = false ;
     public boolean isDelivering = false ;
 
+    public static int currDelay ;
 
 
-    public static String[][] splitString(String input) {
-        String[] semiColonSplit = input.split(";");
-        String[][] result = new String[semiColonSplit.length][];
 
-        for (int i = 0; i < semiColonSplit.length; i++) {
-            result[i] = semiColonSplit[i].split(",");
-        }
+    public static void assignInitialVar(String[][] state){
 
-        return result;
-    }
-    public void assignVar(String[][] state){
-        this.initialProsperity = Integer.parseInt(state[0][0]) ;
-        this.initialFood = Integer.parseInt(state[1][0]);
-        initialMaterials=Integer.parseInt(state[1][1]);
-        initialEnergy =Integer.parseInt(state[1][2]);
+        prosperity = Integer.parseInt(state[0][0]) ;
+        food = Integer.parseInt(state[1][0]);
+        materials=Integer.parseInt(state[1][1]);
+        energy =Integer.parseInt(state[1][2]);
         unitPriceFood = Integer.parseInt(state[2][0]);
         unitPriceMaterials = Integer.parseInt(state[2][1]);
         unitPriceEnergy= Integer.parseInt(state[2][2]);
@@ -60,16 +53,50 @@ public class GenericSearch {
         energyUseBUILD2 = Integer.parseInt(state[7][3]);
         prosperityBUILD2 = Integer.parseInt(state[7][4]);
     }
-    public void BreadthFirst(String problem){
 
+    public static Node bfs() {
+        Queue<Node> frontier = new LinkedList<>();
+        frontier.add(currNode);
+        Set<Node> explored = new HashSet<>();
+        while (!frontier.isEmpty()) {
+            System.out.println(frontier);
+            Node node = frontier.remove();
+            currNode = node ;
+            State state = node.state;
+            if (state.prosperity >=100) {
+                return node;
+            }
+            if (!explored.contains(node)) {
+                explored.add(node);
+                if(currNode.action == Action.REQUEST_ENERGY){
+                    currDelay = delayRequestEnergy;
+                } else if (currNode.action == Action.REQUEST_FOOD) {
+                    currDelay=delayRequestFood;
+                } else if (currNode.action==Action.REQUEST_MATERIALS) {
+                    currDelay = delayRequestMaterials;
+                }
+                childNodes = currNode.generateChildNodes();
+                frontier.addAll(childNodes);
+//                for (Action<T> action : problem.actions(state)) {
+//                    T next_state = problem.result(state, action);
+//                    frontier.add(new Node<>(next_state, node, action, node.path_cost + problem.path_cost(node.path_cost, state, action, next_state)));
+//                }
+            }
+        }
+        return null;
     }
-    public Boolean GoalTest(){
-        return initialProsperity ==100;
+    public static Boolean GoalTest(State state){
+        return state.prosperity == 100;
     }
-    public void Generic(String search ,String problem ){
+    public static void Generic(String search){
         if ( search == "BF"){
-            BreadthFirst(problem);
+            Node r = bfs();
+            System.out.println("HEEEERRREEEE " + r);
+            System.out.println("PAAATTTHHH:  " + r.pathToNode);
         }
 
     }
+//    public static Node[] search(Node root, String strategy){
+//        return new Node[2];
+//    }
 }
