@@ -57,5 +57,15 @@ public class State {
         this.monetary_cost = money_spent;
     }
 
+    public String toString(){
+        return "State{" +
+                "food=" + this.food +
+                ", materials=" + this.materials +
+                ", energy=" + this.energy +
+                ", prosperity=" + this.prosperity +
+                ", monetary_cost=" + this.monetary_cost +
+                '}';
+    }
+
 }
 

@@ -1,10 +1,10 @@
 package Code;
 
 public enum Action {
-    REQUEST_MATERIALS,
     REQUEST_FOOD,
+    REQUEST_MATERIALS,
     REQUEST_ENERGY,
-    WAIT,
+    BUILD1,
     BUILD2,
-    BUILD1
+    WAIT
 }

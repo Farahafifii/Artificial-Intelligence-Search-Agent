@@ -1,19 +1,16 @@
 package Code;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Node {
     public State state ;
-    //public String node;
     public Node parentNode;
     public Action action;
     public int depth = 0 ;
     public int pathCost;
-    public List<Node> generatedNodes;
-    int counter=0;
-    boolean onDelievery= false;
-
+    boolean onDelivery = false;
     public List<Node> pathToNode ;
     public Node(State state, Node parentnode,Action action) {
         this.state = state ;
@@ -22,26 +19,27 @@ public class Node {
             this.depth= 0 ;
         }
         else{
-            this.depth = parentnode.depth ++ ;
+            this.depth = parentnode.depth + 1 ;
         }
         this.pathCost = 0 ;
         this.action = action;
         this.pathToNode = new ArrayList<Node>();
-        this.generatedNodes = new ArrayList<Node>();
 }
+
     public List<Node> generateChildNodes() {
         List<Node> childNodes = new ArrayList<>();
+        List<Node> nodesPath = this.pathToNode;
         if (this.action==Action.REQUEST_ENERGY || this.action==Action.REQUEST_FOOD || this.action==Action.REQUEST_MATERIALS){
             for (Action actions : Action.values()){
                 if(actions==Action.BUILD1 || actions==Action.BUILD2 || actions==Action.WAIT ){
-                    State newState = applyAction(this.state , actions);
-                    Node newNode = new Node(newState , this, actions);
-                    newNode.pathToNode = this.pathToNode;
+                    State newState = new State(this.state.food ,this.state.materials , this.state.energy , this.state.prosperity , this.state.monetary_cost);
+                    newState = applyAction(newState , actions);
+                    Node newNode = new Node(newState , GenericSearch.currNode, actions);
+                    newNode.pathToNode = nodesPath;
                     newNode.pathToNode.add(newNode);
                     childNodes.add(newNode);
                 }
             }
-            //make into loop
         }
         else if(GenericSearch.currDelay >0){
             for(Action actions : Action.values()){
@@ -49,13 +47,13 @@ public class Node {
                     continue;
                 }
                 else {
-                    State newState = applyAction(this.state , actions);
-                    Node newNode = new Node(newState , this, actions);
-                    newNode.pathToNode = this.pathToNode;
+                    State newState = new State(this.state.food ,this.state.materials , this.state.energy , this.state.prosperity , this.state.monetary_cost);
+                    newState = applyAction(newState , actions);
+                    Node newNode = new Node(newState , GenericSearch.currNode, actions);
+                    newNode.pathToNode = nodesPath;
                     newNode.pathToNode.add(newNode);
                     childNodes.add(newNode);
                 }
-
             }
         }
         else if (GenericSearch.currDelay==0){
@@ -63,146 +61,118 @@ public class Node {
                 if(actions == Action.WAIT){
                     continue;
                 }
-                State newState = applyAction(this.state , actions);
-                Node newNode = new Node(newState , this, actions);
-                newNode.pathToNode = this.pathToNode;
+                State newState = new State(this.state.food ,this.state.materials , this.state.energy , this.state.prosperity , this.state.monetary_cost);
+                newState = applyAction(newState , actions);
+                Node newNode = new Node(newState , GenericSearch.currNode, actions);
+                newNode.pathToNode = nodesPath;
                 newNode.pathToNode.add(newNode);
                 childNodes.add(newNode);
             }
         }
         return childNodes;
     }
-    public State applyAction(State state , Action currAction){
-        State newState= state;
+
+    public State applyAction(State s , Action currAction){
+        State newState = s;
         if (currAction == Action.REQUEST_ENERGY){
-            newState = RequestEnergy(state);
+            newState = RequestEnergy(newState);
         } else if (currAction == Action.REQUEST_MATERIALS) {
-            newState =RequestMaterials(state);
+            newState =RequestMaterials(newState);
         } else if (currAction==Action.REQUEST_FOOD) {
-            newState =RequestFood(state);
+            newState =RequestFood(newState);
         } else if (currAction==Action.BUILD1) {
-            newState =Build1(state);
+            newState =Build1(newState);
         } else if (currAction==Action.BUILD2) {
-            newState =Build2(state);
+            newState =Build2(newState);
         }
         else{
-            Wait(state);
+            Wait(newState);
         }
         return newState;
     }
-    public State RequestFood(State state) {
-        if(!onDelievery) {
-            state.food--;
-            state.monetary_cost += GenericSearch.unitPriceFood;
-            // if the delivery is pending
-            onDelievery = true;
-//    if(isWaiting&&isDelivering){
-//        this.food += this.amountRequestFood;
-//    }
-            counter = 0;
-        }
+    public State RequestFood(State s) {
+        s.food--;
+        s.materials -- ;
+        s.energy -- ;
+        s.monetary_cost += GenericSearch.unitPriceFood;
+        onDelivery = true;
+        GenericSearch.currDelay = GenericSearch.delayRequestFood;
+        GenericSearch.currActionDelay = Action.REQUEST_FOOD;
         return state;
     }
     public State RequestMaterials(State state) {
-
-        if(!onDelievery)
-        {
-            state.materials--;
-            state.monetary_cost += GenericSearch.unitPriceMaterials;
-            // if the delivery is pending
-            onDelievery=true;
-//    if(isWaiting&&isDelivering){
-//        this.materials += this.amountRequestMaterials;
-//    }
-            counter = 0;
-        }
+        state.materials--;
+        state.food -- ;
+        state.energy -- ;
+        state.monetary_cost += GenericSearch.unitPriceMaterials;
+        GenericSearch.currDelay = GenericSearch.delayRequestMaterials;
+        GenericSearch.currActionDelay = Action.REQUEST_MATERIALS;
         return state ;
     }
     public State RequestEnergy(State state) {
-        if(!onDelievery) {
-            state.energy--;
-            state.monetary_cost += GenericSearch.unitPriceEnergy;
-            // if the delivery is pending
-            onDelievery = true;
-//    if(isWaiting&&isDelivering){
-//        this.energy += this.amountRequestEnergy;
-//    }
-            counter = 0;
-        }
+        state.food--;
+        state.materials -- ;
+        state.energy -- ;
+        state.monetary_cost += GenericSearch.unitPriceEnergy;
+        GenericSearch.currDelay = GenericSearch.delayRequestEnergy;
+        GenericSearch.currActionDelay = Action.REQUEST_ENERGY;
         return state;
     }
     public State Build1(State state) {
-        if(!onDelievery) {
-            state.monetary_cost += GenericSearch.priceBUILD1;
-            state.prosperity += GenericSearch.prosperityBUILD1;
-
-            for (int i = 0; i < GenericSearch.materialsUseBUILD1; i++) {
-                state = RequestMaterials(state);
-            }
-            for (int i = 0; i < GenericSearch.energyUseBUILD1; i++) {
-                state = RequestEnergy(state);
-            }
-            for (int i = 0; i < GenericSearch.foodUseBUILD1; i++) {
-                state = RequestFood(state);
-            }
-            counter += 1;
-            if (counter == 2) {
-                state.materials += GenericSearch.amountRequestMaterials;
-            }
-        }
+        state.monetary_cost += GenericSearch.priceBUILD1;
+        state.prosperity += GenericSearch.prosperityBUILD1;
+        state.energy -= GenericSearch.energyUseBUILD1;
+        state.food -= GenericSearch.foodUseBUILD1 ;
+        state.materials-=GenericSearch.materialsUseBUILD1;
+        if(GenericSearch.currDelay>0 )
+            GenericSearch.currDelay-- ;
         return state ;
     }
     public State Build2(State state) {
-        if(!onDelievery){
-            state.monetary_cost += GenericSearch.priceBUILD2;
-            state.prosperity += GenericSearch.prosperityBUILD2;
-
-            for (int i = 0; i < GenericSearch.materialsUseBUILD2; i++) {
-                state = RequestMaterials(state);
-            }
-            for (int i = 0; i < GenericSearch.energyUseBUILD2; i++) {
-                state = RequestEnergy(state);
-            }
-            for (int i = 0; i < GenericSearch.foodUseBUILD2; i++) {
-                state = RequestFood(state);
-            }
-            GenericSearch.currDelay -- ;
-            if (GenericSearch.currDelay == 0 ) {
+        state.monetary_cost += GenericSearch.priceBUILD2;
+        state.prosperity += GenericSearch.prosperityBUILD2;
+        state.energy -= GenericSearch.energyUseBUILD2;
+        state.food -= GenericSearch.foodUseBUILD2 ;
+        state.materials-=GenericSearch.materialsUseBUILD2;
+        if (GenericSearch.currDelay == 0 ) {
+            if(GenericSearch.currActionDelay == Action.REQUEST_ENERGY)
+                state.materials+=GenericSearch.amountRequestEnergy;
+            else if (GenericSearch.currActionDelay ==  Action.REQUEST_MATERIALS)
                 state.materials += GenericSearch.amountRequestMaterials;
-            }
+            else if (GenericSearch.currActionDelay == Action.REQUEST_FOOD)
+                state.food+=GenericSearch.amountRequestFood;
+            GenericSearch.currActionDelay = null;
         }
+        else if(GenericSearch.currDelay>0 )
+            GenericSearch.updateDelay();
         return state;
     }
     public State Wait(State state) {
-        GenericSearch.currDelay-- ;
-        if(GenericSearch.currDelay== 0 ){
+        if(GenericSearch.currDelay <= 0 ){
             state.food += GenericSearch.amountRequestFood;
             state.materials += GenericSearch.amountRequestMaterials;
             state.energy += GenericSearch.amountRequestEnergy;
+            onDelivery =false;
         }
-        onDelievery=false;
+        GenericSearch.updateDelay();
+
         return state ;
     }
 
-
     public String toString() {
-        return "Node{" +
-                "State{" +
+        StringBuilder sb = new StringBuilder();
+        sb.append("-->Node{");
+        sb.append("state=").append("State{" +
                 "food=" + state.food +
                 ", materials=" + state.materials +
                 ", energy=" + state.energy +
                 ", prosperity=" + state.prosperity +
                 ", monetary_cost=" + state.monetary_cost +
-                '}'+
-//                ", parentNode=" + parentNode +
-                ", action=" + action +
-                ", depth=" + depth +
-                ", pathCost=" + pathCost +
-//                ", generatedNodes=" + generatedNodes +
-                ", counter=" + counter +
-                ", onDelivery=" + onDelievery +
-//                ", pathToNode=" + pathToNode +
-                '}';
+                '}');
+        sb.append(", action=").append(action);
+        sb.append(", depth=").append(depth);
+        sb.append("} <--");
+        return sb.toString();
     }
 
 }

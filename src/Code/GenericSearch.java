@@ -5,7 +5,6 @@ import java.util.*;
 public abstract class GenericSearch {
     public static Node currNode; //initial State
     public static List<Node> childNodes; //State Space
-
     public static int unitPriceFood, unitPriceMaterials, unitPriceEnergy;
     public static int amountRequestFood, delayRequestFood;
     public static int amountRequestMaterials, delayRequestMaterials;
@@ -20,12 +19,19 @@ public abstract class GenericSearch {
     public static int energy;
     public static int monetary_cost = 0 ;
     public static int prosperity ;
-    public boolean isWaiting = false ;
-    public boolean isDelivering = false ;
+    public static Action currActionDelay;
 
-    public static int currDelay ;
+    public static int currDelay = 0 ;
 
 
+    public static void updateDelay(){
+        if(currDelay > 0)
+            currDelay -- ;
+        if (currDelay<=0) {
+            currDelay = 0;
+            currActionDelay = null;
+        }
+    }
 
     public static void assignInitialVar(String[][] state){
 
@@ -53,50 +59,57 @@ public abstract class GenericSearch {
         energyUseBUILD2 = Integer.parseInt(state[7][3]);
         prosperityBUILD2 = Integer.parseInt(state[7][4]);
     }
-
+public static void setCurrDelay(){
+    if(currNode.action == Action.REQUEST_ENERGY){
+        currDelay = delayRequestEnergy;
+    } else if (currNode.action == Action.REQUEST_FOOD) {
+        currDelay=delayRequestFood;
+    } else if (currNode.action==Action.REQUEST_MATERIALS) {
+        currDelay = delayRequestMaterials;
+    }
+}
     public static Node bfs() {
         Queue<Node> frontier = new LinkedList<>();
         frontier.add(currNode);
         Set<Node> explored = new HashSet<>();
         while (!frontier.isEmpty()) {
-            System.out.println(frontier);
             Node node = frontier.remove();
             currNode = node ;
-            State state = node.state;
+            setCurrDelay();
+            State state = currNode.state;
+            System.out.println("Current: " + currNode.state + " " + currNode.action + " " + currNode.depth);
             if (state.prosperity >=100) {
                 return node;
             }
             if (!explored.contains(node)) {
                 explored.add(node);
-                if(currNode.action == Action.REQUEST_ENERGY){
-                    currDelay = delayRequestEnergy;
-                } else if (currNode.action == Action.REQUEST_FOOD) {
-                    currDelay=delayRequestFood;
-                } else if (currNode.action==Action.REQUEST_MATERIALS) {
-                    currDelay = delayRequestMaterials;
-                }
                 childNodes = currNode.generateChildNodes();
-                frontier.addAll(childNodes);
-//                for (Action<T> action : problem.actions(state)) {
-//                    T next_state = problem.result(state, action);
-//                    frontier.add(new Node<>(next_state, node, action, node.path_cost + problem.path_cost(node.path_cost, state, action, next_state)));
-//                }
+                for (Node childNode : childNodes) {
+                    System.out.println("CHILDREN: " + childNode.state + " " + childNode.action + " " + childNode.depth );
+                    childNode.pathToNode = currNode.pathToNode;
+                    childNode.pathToNode.add(childNode);
+                    if (childNode != null && !explored.contains(childNode)) {
+                        frontier.add(childNode);
+                    }
+                }
             }
         }
         return null;
     }
-    public static Boolean GoalTest(State state){
-        return state.prosperity == 100;
-    }
+
     public static void Generic(String search){
         if ( search == "BF"){
             Node r = bfs();
-            System.out.println("HEEEERRREEEE " + r);
-            System.out.println("PAAATTTHHH:  " + r.pathToNode);
+            if(r==null)
+                System.out.println("NOSOLUTION");
+           else {
+               System.out.println("HEEEERRREEEE " + r);
+                System.out.println("PAAATTTHHH:  " + r.pathToNode);
+            }
+
         }
+//        return "RequestFood,RequestEnergy;20;20";
 
     }
-//    public static Node[] search(Node root, String strategy){
-//        return new Node[2];
-//    }
+
 }
