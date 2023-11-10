@@ -155,11 +155,15 @@ public class Node {
         return state ;
     }
     public State Build2(State state) {
-        state.monetary_cost += GenericSearch.priceBUILD2;
+//        state.monetary_cost += GenericSearch.priceBUILD2;
         state.prosperity += GenericSearch.prosperityBUILD2;
         state.energy -= GenericSearch.energyUseBUILD2;
         state.food -= GenericSearch.foodUseBUILD2 ;
         state.materials-=GenericSearch.materialsUseBUILD2;
+        state.monetary_cost += GenericSearch.priceBUILD2+
+                ((GenericSearch.energyUseBUILD2*GenericSearch.unitPriceEnergy)+
+                ( GenericSearch.foodUseBUILD2*GenericSearch.unitPriceFood)+
+                (GenericSearch.materialsUseBUILD2*GenericSearch.unitPriceMaterials) );
         if (state.food < 0 || state.materials < 0 || state.energy < 0  ) {
             return null ;
         }
