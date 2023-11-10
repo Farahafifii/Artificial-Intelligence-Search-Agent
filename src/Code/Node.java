@@ -173,6 +173,7 @@ public class Node {
         state.food--;
         state.materials -- ;
         state.energy -- ;
+        state.monetary_cost += GenericSearch.unitPriceMaterials + GenericSearch.unitPriceEnergy + GenericSearch.unitPriceFood;
         if (state.food < 0 || state.materials < 0 || state.energy < 0  ) {
             return null ;
         }
