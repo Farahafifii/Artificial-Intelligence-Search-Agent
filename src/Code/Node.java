@@ -113,7 +113,7 @@ public class Node {
         s.food--;
         s.materials -- ;
         s.energy -- ;
-        s.monetary_cost += GenericSearch.unitPriceFood;
+        s.monetary_cost += GenericSearch.unitPriceMaterials + GenericSearch.unitPriceEnergy + GenericSearch.unitPriceFood;
         if (s.food < 0 || s.materials < 0 || s.energy < 0  ) {
             return null ;
         }
@@ -123,7 +123,7 @@ public class Node {
         state.materials--;
         state.food -- ;
         state.energy -- ;
-        state.monetary_cost += GenericSearch.unitPriceMaterials;
+        state.monetary_cost += GenericSearch.unitPriceMaterials + GenericSearch.unitPriceEnergy + GenericSearch.unitPriceFood;
         if (state.food < 0 || state.materials < 0 || state.energy < 0  ) {
             return null ;
         }
@@ -133,18 +133,22 @@ public class Node {
         state.food--;
         state.materials -- ;
         state.energy -- ;
-        state.monetary_cost += GenericSearch.unitPriceEnergy;
+        state.monetary_cost += GenericSearch.unitPriceMaterials + GenericSearch.unitPriceEnergy + GenericSearch.unitPriceFood;
         if (state.food < 0 || state.materials < 0 || state.energy < 0  ) {
             return null ;
         }
         return state;
     }
     public State Build1(State state) {
-        state.monetary_cost += GenericSearch.priceBUILD1;
+
         state.prosperity += GenericSearch.prosperityBUILD1;
         state.energy -= GenericSearch.energyUseBUILD1;
         state.food -= GenericSearch.foodUseBUILD1 ;
         state.materials-=GenericSearch.materialsUseBUILD1;
+        state.monetary_cost += GenericSearch.priceBUILD1+
+                ((GenericSearch.energyUseBUILD1*GenericSearch.unitPriceEnergy)+
+                ( GenericSearch.foodUseBUILD1*GenericSearch.unitPriceFood)+
+                (GenericSearch.materialsUseBUILD1*GenericSearch.unitPriceMaterials) );
         if (state.food < 0 || state.materials < 0 || state.energy < 0  ) {
             return null ;
         }

@@ -18,7 +18,12 @@ public class Main {
                 "7,1;20,2;29,2;" +
                 "350,10,9,8,28;" +
                 "408,8,12,13,34;";
-
-        LLAPSearch.solve(initialState0,"BF",false);
+        String init = "50;"+
+                "22,22,22;" +
+                "50,60,70;" +
+                "30,2;19,1;15,1;" +
+                "300,5,7,3,20;" +
+                "500,8,6,3,40;";
+        LLAPSearch.solve(init,"BF",false);
     }
 }
