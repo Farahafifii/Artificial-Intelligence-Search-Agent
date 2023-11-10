@@ -34,14 +34,18 @@ public class Node {
                     State newState = new State(this.state.food ,this.state.materials , this.state.energy , this.state.prosperity , this.state.monetary_cost);
                     newState = applyAction(newState , a);
                     if (newState!=null) {
-                        Node newNode = new Node(newState, GenericSearch.currNode, a);
-                        newNode.currDelay = this.currDelay < 0 ? 0 : this.currDelay - 1;
-                        if (this.currDelay == 1) {
-                            Node n1 = updateValues(newNode);
-                            newNode.currActionDelay = null;
-                            children.add(n1);
-                        } else
+                        if (this.currDelay <= 1) {
+                            newState = updateValues(newState);
+                            Node newNode = new Node(newState, GenericSearch.currNode, a);
+                            newNode.currDelay = this.currDelay <= 0 ? 0 : this.currDelay - 1;
                             children.add(newNode);
+                        }
+                        else{
+                            Node newNode = new Node(newState, GenericSearch.currNode, a);
+                            newNode.currDelay = this.currDelay <= 0 ? 0 : this.currDelay - 1;
+                            children.add(newNode);
+                        }
+
                     }
                 }
             }
@@ -75,14 +79,18 @@ public class Node {
                         State newState = new State(this.state.food ,this.state.materials , this.state.energy , this.state.prosperity , this.state.monetary_cost);
                         newState = applyAction(newState , a);
                         if (newState!=null) {
-                            Node newNode = new Node(newState, GenericSearch.currNode, a);
-                            newNode.currDelay = this.currDelay <= 0 ? 0 : this.currDelay - 1;
                             if (this.currDelay <= 1) {
-                                Node n1 = updateValues(newNode);
-                                newNode.currActionDelay = null;
-                                children.add(n1);
-                            } else
+                                newState = updateValues(newState);
+                                Node newNode = new Node(newState, GenericSearch.currNode, a);
+                                newNode.currDelay = this.currDelay <= 0 ? 0 : this.currDelay - 1;
                                 children.add(newNode);
+                            }
+                            else{
+                                Node newNode = new Node(newState, GenericSearch.currNode, a);
+                                newNode.currDelay = this.currDelay <= 0 ? 0 : this.currDelay - 1;
+                                children.add(newNode);
+                            }
+
                         }
                     }
                 }
@@ -207,14 +215,14 @@ public class Node {
     public void setPathToNode(List<Node> pathToNode) {
         this.pathToNode = pathToNode;
     }
-    public Node updateValues(Node n ){
-        if(n.currActionDelay==Action.REQUEST_FOOD)
-            n.state.food += GenericSearch.amountRequestFood;
-        else if (n.currActionDelay==Action.REQUEST_MATERIALS)
-            n.state.materials += GenericSearch.amountRequestMaterials;
+    public State updateValues(State n ){
+        if(this.currActionDelay==Action.REQUEST_FOOD)
+            n.food += GenericSearch.amountRequestFood;
+        else if (this.currActionDelay==Action.REQUEST_MATERIALS)
+            n.materials += GenericSearch.amountRequestMaterials;
         else
-            n.state.energy += GenericSearch.amountRequestEnergy;
-        return n ;
+            n.energy += GenericSearch.amountRequestEnergy;
+        return new State(n.food, n.materials,n.energy,n.prosperity,n.monetary_cost);
     }
 
     public String toString() {

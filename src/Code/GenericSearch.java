@@ -64,7 +64,7 @@ public abstract class GenericSearch {
         frontier.add(currNode);
         Set<Node> explored = new HashSet<>();
         while (!frontier.isEmpty()) {
-            Node node = frontier.remove();
+            Node node = frontier.poll();
             currNode = node ;
             State state = currNode.state;
             System.out.println("Current: " + currNode.state + " " + currNode.action + " " + currNode.depth +" "+  currNode.currDelay +" " + (currNode.parentNode==null? "":
@@ -84,6 +84,8 @@ public abstract class GenericSearch {
                 for (Node childNode : childNodes) {
                     System.out.println("CHILDREN: " + childNode.state + " " + childNode.action + " " + childNode.depth );
                     if (childNode != null && !explored.contains(childNode)) {
+                        if(currNode.action==Action.REQUEST_FOOD || currNode.action==Action.REQUEST_ENERGY || currNode.action==Action.REQUEST_MATERIALS)
+                            childNode.currActionDelay=currNode.action;
                         frontier.add(childNode);
                     }
                 }
