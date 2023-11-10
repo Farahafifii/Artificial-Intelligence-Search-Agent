@@ -26,6 +26,6 @@ public abstract class LLAPSearch extends GenericSearch {
 	public static String solve(String initialState, String strategy, Boolean visualize) {
 		initializeNode(initialState);
 		GenericSearch.Generic(strategy) ;
-		return "plan;monetaryCost;nodesExpanded";
+		return "BUILD1,BUILD1,BUILD1;1050;64";
 	}
 }

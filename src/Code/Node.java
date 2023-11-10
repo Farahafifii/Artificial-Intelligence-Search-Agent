@@ -10,7 +10,8 @@ public class Node {
     public Action action;
     public int depth = 0 ;
     public int pathCost;
-    boolean onDelivery = false;
+    public int currDelay  = 0 ;
+    public Action currActionDelay;
     public List<Node> pathToNode ;
     public Node(State state, Node parentnode,Action action) {
         this.state = state ;
@@ -25,51 +26,69 @@ public class Node {
         this.action = action;
         this.pathToNode = new ArrayList<Node>();
 }
-
-    public List<Node> generateChildNodes() {
-        List<Node> childNodes = new ArrayList<>();
-        List<Node> nodesPath = this.pathToNode;
-        if (this.action==Action.REQUEST_ENERGY || this.action==Action.REQUEST_FOOD || this.action==Action.REQUEST_MATERIALS){
-            for (Action actions : Action.values()){
-                if(actions==Action.BUILD1 || actions==Action.BUILD2 || actions==Action.WAIT ){
+    public List<Node> generateChildNodes(){
+        List<Node> children = new ArrayList<>();
+        if((this.action == Action.REQUEST_FOOD && this.currDelay > 0) || (this.action == Action.REQUEST_ENERGY && this.currDelay > 0) ||(this.action == Action.REQUEST_MATERIALS && this.currDelay > 0)){
+            for (Action a : Action.values()){
+                if(a == Action.BUILD1 || a==Action.BUILD2 || a==Action.WAIT ){
                     State newState = new State(this.state.food ,this.state.materials , this.state.energy , this.state.prosperity , this.state.monetary_cost);
-                    newState = applyAction(newState , actions);
-                    Node newNode = new Node(newState , GenericSearch.currNode, actions);
-                    newNode.pathToNode = nodesPath;
-                    newNode.pathToNode.add(newNode);
-                    childNodes.add(newNode);
+                    newState = applyAction(newState , a);
+                    if (newState!=null) {
+                        Node newNode = new Node(newState, GenericSearch.currNode, a);
+                        newNode.currDelay = this.currDelay < 0 ? 0 : this.currDelay - 1;
+                        if (this.currDelay == 1) {
+                            Node n1 = updateValues(newNode);
+                            newNode.currActionDelay = null;
+                            children.add(n1);
+                        } else
+                            children.add(newNode);
+                    }
                 }
             }
         }
-        else if(GenericSearch.currDelay >0){
-            for(Action actions : Action.values()){
-                if(actions == Action.REQUEST_ENERGY || actions == Action.REQUEST_FOOD || actions == Action.REQUEST_MATERIALS ){
-                    continue;
-                }
-                else {
+        else if (this.currDelay ==0){
+            for (Action a : Action.values()){
+                if(!(a == Action.WAIT)){
                     State newState = new State(this.state.food ,this.state.materials , this.state.energy , this.state.prosperity , this.state.monetary_cost);
-                    newState = applyAction(newState , actions);
-                    Node newNode = new Node(newState , GenericSearch.currNode, actions);
-                    newNode.pathToNode = nodesPath;
-                    newNode.pathToNode.add(newNode);
-                    childNodes.add(newNode);
+                    newState = applyAction(newState , a);
+                    if (newState!=null) {
+                        Node newNode = new Node(newState, GenericSearch.currNode, a);
+                        if (a == Action.REQUEST_FOOD) {
+                            newNode.currDelay = GenericSearch.delayRequestFood + 1;
+                            newNode.currActionDelay = Action.REQUEST_FOOD;
+                        } else if (a == Action.REQUEST_ENERGY) {
+                            newNode.currDelay = GenericSearch.delayRequestEnergy + 1;
+                            newNode.currActionDelay = Action.REQUEST_ENERGY;
+                        } else if (a == Action.REQUEST_MATERIALS) {
+                            newNode.currDelay = GenericSearch.delayRequestMaterials + 1;
+                            newNode.currActionDelay = Action.REQUEST_MATERIALS;
+                        }
+                        children.add(newNode);
+                    }
                 }
             }
         }
-        else if (GenericSearch.currDelay==0){
-            for(Action actions : Action.values()){
-                if(actions == Action.WAIT){
-                    continue;
+        else {
+            if ( this.currDelay > 0 ){
+                for (Action a : Action.values()){
+                    if(!(a == Action.REQUEST_FOOD) && !(a==Action.REQUEST_ENERGY) && !(a==Action.REQUEST_MATERIALS)){
+                        State newState = new State(this.state.food ,this.state.materials , this.state.energy , this.state.prosperity , this.state.monetary_cost);
+                        newState = applyAction(newState , a);
+                        if (newState!=null) {
+                            Node newNode = new Node(newState, GenericSearch.currNode, a);
+                            newNode.currDelay = this.currDelay <= 0 ? 0 : this.currDelay - 1;
+                            if (this.currDelay <= 1) {
+                                Node n1 = updateValues(newNode);
+                                newNode.currActionDelay = null;
+                                children.add(n1);
+                            } else
+                                children.add(newNode);
+                        }
+                    }
                 }
-                State newState = new State(this.state.food ,this.state.materials , this.state.energy , this.state.prosperity , this.state.monetary_cost);
-                newState = applyAction(newState , actions);
-                Node newNode = new Node(newState , GenericSearch.currNode, actions);
-                newNode.pathToNode = nodesPath;
-                newNode.pathToNode.add(newNode);
-                childNodes.add(newNode);
             }
         }
-        return childNodes;
+        return children;
     }
 
     public State applyAction(State s , Action currAction){
@@ -95,18 +114,19 @@ public class Node {
         s.materials -- ;
         s.energy -- ;
         s.monetary_cost += GenericSearch.unitPriceFood;
-        onDelivery = true;
-        GenericSearch.currDelay = GenericSearch.delayRequestFood;
-        GenericSearch.currActionDelay = Action.REQUEST_FOOD;
-        return state;
+        if (s.food < 0 || s.materials < 0 || s.energy < 0  ) {
+            return null ;
+        }
+        return s;
     }
     public State RequestMaterials(State state) {
         state.materials--;
         state.food -- ;
         state.energy -- ;
         state.monetary_cost += GenericSearch.unitPriceMaterials;
-        GenericSearch.currDelay = GenericSearch.delayRequestMaterials;
-        GenericSearch.currActionDelay = Action.REQUEST_MATERIALS;
+        if (state.food < 0 || state.materials < 0 || state.energy < 0  ) {
+            return null ;
+        }
         return state ;
     }
     public State RequestEnergy(State state) {
@@ -114,8 +134,9 @@ public class Node {
         state.materials -- ;
         state.energy -- ;
         state.monetary_cost += GenericSearch.unitPriceEnergy;
-        GenericSearch.currDelay = GenericSearch.delayRequestEnergy;
-        GenericSearch.currActionDelay = Action.REQUEST_ENERGY;
+        if (state.food < 0 || state.materials < 0 || state.energy < 0  ) {
+            return null ;
+        }
         return state;
     }
     public State Build1(State state) {
@@ -124,8 +145,9 @@ public class Node {
         state.energy -= GenericSearch.energyUseBUILD1;
         state.food -= GenericSearch.foodUseBUILD1 ;
         state.materials-=GenericSearch.materialsUseBUILD1;
-        if(GenericSearch.currDelay>0 )
-            GenericSearch.currDelay-- ;
+        if (state.food < 0 || state.materials < 0 || state.energy < 0  ) {
+            return null ;
+        }
         return state ;
     }
     public State Build2(State state) {
@@ -134,29 +156,56 @@ public class Node {
         state.energy -= GenericSearch.energyUseBUILD2;
         state.food -= GenericSearch.foodUseBUILD2 ;
         state.materials-=GenericSearch.materialsUseBUILD2;
-        if (GenericSearch.currDelay == 0 ) {
-            if(GenericSearch.currActionDelay == Action.REQUEST_ENERGY)
-                state.materials+=GenericSearch.amountRequestEnergy;
-            else if (GenericSearch.currActionDelay ==  Action.REQUEST_MATERIALS)
-                state.materials += GenericSearch.amountRequestMaterials;
-            else if (GenericSearch.currActionDelay == Action.REQUEST_FOOD)
-                state.food+=GenericSearch.amountRequestFood;
-            GenericSearch.currActionDelay = null;
+        if (state.food < 0 || state.materials < 0 || state.energy < 0  ) {
+            return null ;
         }
-        else if(GenericSearch.currDelay>0 )
-            GenericSearch.updateDelay();
         return state;
     }
     public State Wait(State state) {
-        if(GenericSearch.currDelay <= 0 ){
-            state.food += GenericSearch.amountRequestFood;
-            state.materials += GenericSearch.amountRequestMaterials;
-            state.energy += GenericSearch.amountRequestEnergy;
-            onDelivery =false;
+        state.food--;
+        state.materials -- ;
+        state.energy -- ;
+        if (state.food < 0 || state.materials < 0 || state.energy < 0  ) {
+            return null ;
         }
-        GenericSearch.updateDelay();
-
         return state ;
+    }
+//    public void updateDelay(){
+//        if(currDelay > 0)
+//            currDelay -- ;
+//        if (currDelay<=0) {
+//            currDelay = 0;
+//            currActionDelay = null;
+//        }
+//    }
+//    public void setCurrDelay(Action a){
+//        if(a== Action.REQUEST_ENERGY){
+//            currDelay = GenericSearch.delayRequestEnergy;
+//            currActionDelay= Action.REQUEST_ENERGY;
+//        } else if (a == Action.REQUEST_FOOD) {
+//            currDelay=GenericSearch.delayRequestFood;
+//            currActionDelay = Action.REQUEST_FOOD;
+//        } else if (a==Action.REQUEST_MATERIALS) {
+//            currDelay = GenericSearch.delayRequestMaterials;
+//            currActionDelay = Action.REQUEST_MATERIALS;
+//        }
+//    }
+
+    public List<Node> getPathToNode() {
+        return pathToNode;
+    }
+
+    public void setPathToNode(List<Node> pathToNode) {
+        this.pathToNode = pathToNode;
+    }
+    public Node updateValues(Node n ){
+        if(n.currActionDelay==Action.REQUEST_FOOD)
+            n.state.food += GenericSearch.amountRequestFood;
+        else if (n.currActionDelay==Action.REQUEST_MATERIALS)
+            n.state.materials += GenericSearch.amountRequestMaterials;
+        else
+            n.state.energy += GenericSearch.amountRequestEnergy;
+        return n ;
     }
 
     public String toString() {
