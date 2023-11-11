@@ -53,15 +53,18 @@ public abstract class GenericSearch {
                 childNodes = new ArrayList<>();
                 childNodes = currNode.generateChildNodes();
                 if(visualize){
-                    System.out.println("Current: " + currNode.state + " " + currNode.action + " " + currNode.depth +" " + (currNode.parentNode==null? "":
-                    " Parent: " + currNode.parentNode.state + " "
-                            + currNode.parentNode.action + " " + currNode.parentNode.depth)
-                    +(currNode.parentNode==null? "": currNode.parentNode.parentNode==null?"":
-                    " GParent: " + currNode.parentNode.parentNode.action + " " + currNode.parentNode.parentNode.depth));
+                    visualize(currNode,null);
+
+//                    System.out.println("Current: " + currNode.state + " " + currNode.action + " " + currNode.depth +" " + (currNode.parentNode==null? "":
+//                    " Parent: " + currNode.parentNode.state + " "
+//                            + currNode.parentNode.action + " " + currNode.parentNode.depth)
+//                    +(currNode.parentNode==null? "": currNode.parentNode.parentNode==null?"":
+//                    " GParent: " + currNode.parentNode.parentNode.action + " " + currNode.parentNode.parentNode.depth));
                 }
                 for (Node childNode : childNodes) {
                     if(visualize)
-                        System.out.println("CHILDREN: " + childNode.state + " " + childNode.action + " " + childNode.depth );
+                        visualize(null,childNode);
+//                        System.out.println("CHILDREN: " + childNode.state + " " + childNode.action + " " + childNode.depth );
                     if (childNode != null && !explored.contains(childNode)) {
                         frontier.add(childNode);
                     }
@@ -95,16 +98,18 @@ public abstract class GenericSearch {
                 // Reverse the order of childNodes to maintain the order of DFS
                 Collections.reverse(childNodes);
                 if(visualize){
-                    System.out.println("Current: " + currNode.state + " " + currNode.action + " " + currNode.depth +" " + (currNode.parentNode==null? "":
-                            " Parent: " + currNode.parentNode.state + " "
-                                    + currNode.parentNode.action + " " + currNode.parentNode.depth)
-                            +(currNode.parentNode==null? "": currNode.parentNode.parentNode==null?"":
-                            " GParent: " + currNode.parentNode.parentNode.action + " " + currNode.parentNode.parentNode.depth));
+                    visualize(currNode,null);
+//                    System.out.println("Current: " + currNode.state + " " + currNode.action + " " + currNode.depth +" " + (currNode.parentNode==null? "":
+//                            " Parent: " + currNode.parentNode.state + " "
+//                                    + currNode.parentNode.action + " " + currNode.parentNode.depth)
+//                            +(currNode.parentNode==null? "": currNode.parentNode.parentNode==null?"":
+//                            " GParent: " + currNode.parentNode.parentNode.action + " " + currNode.parentNode.parentNode.depth));
                 }
                 for (Node childNode : childNodes) {
                     if (childNode != null && !explored.contains(childNode)) {
                         if(visualize)
-                            System.out.println("CHILDREN: " + childNode.state + " " + childNode.action + " " + childNode.depth );
+                            visualize(null,childNode);
+//                            System.out.println("CHILDREN: " + childNode.state + " " + childNode.action + " " + childNode.depth );
                         frontier.add(childNode);
                     }
                 }
@@ -113,6 +118,44 @@ public abstract class GenericSearch {
         Object[] result = new Object[]{null, explored.size()};
         return result;
     }
+    public static Object[] ids(boolean visualize) {
+        int maxDepth = 1000; // Set a maximum depth limit or use an appropriate value
+        for (int depth = 0; depth <= maxDepth; depth++) {
+            PriorityQueue<Node> frontier = new PriorityQueue<>(Comparator.comparingInt(node -> -node.depth));
+            frontier.add(currNode);
+            Set<Node> explored = new HashSet<>();
+
+            while (!frontier.isEmpty()) {
+                Node node = frontier.poll();
+                currNode = node;
+                State state = currNode.state;
+                if (state.prosperity == 100) {
+                    return new Object[]{node, explored.size()};
+                }
+                if (!explored.contains(node) && node.depth <= depth) {
+                    explored.add(node);
+                    if (currNode.state.food == 0 || currNode.state.materials == 0 || currNode.state.energy == 0 || currNode.state.monetary_cost > 100000) {
+                        continue;
+                    }
+                    List<Node> childNodes = node.generateChildNodes();
+                    Collections.reverse(childNodes);
+                    if (visualize) {
+                        visualize(currNode, null);
+                    }
+                    for (Node childNode : childNodes) {
+                        if (childNode != null && !explored.contains(childNode)) {
+                            if (visualize) {
+                                visualize(null, childNode);
+                            }
+                            frontier.add(childNode);
+                        }
+                    }
+                }
+            }
+        }
+        return new Object[]{null, 0}; // No solution found
+    }
+
     public static Object[] ucs(boolean visualize) {
         PriorityQueue<Node> frontier = new PriorityQueue<>(Comparator.comparingInt(node -> currNode.state.monetary_cost));
         frontier.add(currNode);
@@ -136,16 +179,12 @@ public abstract class GenericSearch {
                 // Reverse the order of childNodes to maintain the order of DFS
                 Collections.reverse(childNodes);
                 if(visualize){
-                    System.out.println("Current: " + currNode.state + " " + currNode.action + " " + currNode.depth +" " + (currNode.parentNode==null? "":
-                            " Parent: " + currNode.parentNode.state + " "
-                                    + currNode.parentNode.action + " " + currNode.parentNode.depth)
-                            +(currNode.parentNode==null? "": currNode.parentNode.parentNode==null?"":
-                            " GParent: " + currNode.parentNode.parentNode.action + " " + currNode.parentNode.parentNode.depth));
+                    visualize(currNode, null);
                 }
                 for (Node childNode : childNodes) {
                     if (childNode != null && !explored.contains(childNode)) {
                         if(visualize)
-                            System.out.println("CHILDREN: " + childNode.state + " " + childNode.action + " " + childNode.depth );
+                            visualize(null, childNode);
                         frontier.add(childNode);
                     }
                 }
@@ -155,6 +194,93 @@ public abstract class GenericSearch {
         return result;
     }
 
+    public static Object[] greedy(int heuristic , boolean visualize) {
+        PriorityQueue<Node> frontier;
+        if(heuristic==1){
+            frontier = new PriorityQueue<>(Comparator.comparingInt(node -> currNode.state.heuristic1));
+        }
+        else{
+            frontier = new PriorityQueue<>(Comparator.comparingInt(node -> currNode.state.heuristic2));
+        }
+
+        frontier.add(currNode);
+        Set<Node> explored = new HashSet<>();
+
+        while (!frontier.isEmpty()) {
+            Node node = frontier.poll();
+            currNode = node;
+            State state = currNode.state;
+            if (state.prosperity == 100) {
+                Object[] result = new Object[]{node, explored.size()};
+                return result;
+            }
+            if (!explored.contains(node)) {
+                explored.add(node);
+                if (currNode.state.food == 0 || currNode.state.materials == 0 || currNode.state.energy == 0 || currNode.state.monetary_cost > 100000) {
+                    continue;
+                }
+                childNodes = new ArrayList<>();
+                childNodes = currNode.generateChildNodes();
+                // Reverse the order of childNodes to maintain the order of DFS
+                Collections.reverse(childNodes);
+                if(visualize){
+                    visualize(currNode, null);
+                }
+                for (Node childNode : childNodes) {
+                    if (childNode != null && !explored.contains(childNode)) {
+                        if(visualize)
+                            visualize(null, childNode);
+                        frontier.add(childNode);
+                    }
+                }
+            }
+        }
+        Object[] result = new Object[]{null, explored.size()};
+        return result;
+    }
+    public static Object[] A_star(int heuristic , boolean visualize) {
+        PriorityQueue<Node> frontier;
+        if(heuristic==1){
+            frontier = new PriorityQueue<>(Comparator.comparingInt(node -> currNode.state.admissible_heuristic1));
+        }
+        else{
+            frontier = new PriorityQueue<>(Comparator.comparingInt(node -> currNode.state.admissible_heuristic2));
+        }
+        frontier.add(currNode);
+        Set<Node> explored = new HashSet<>();
+
+        while (!frontier.isEmpty()) {
+            Node node = frontier.poll();
+            currNode = node;
+            State state = currNode.state;
+            if (state.prosperity == 100) {
+                Object[] result = new Object[]{node, explored.size()};
+                return result;
+            }
+            if (!explored.contains(node)) {
+                explored.add(node);
+                if (currNode.state.food == 0 || currNode.state.materials == 0 || currNode.state.energy == 0 || currNode.state.monetary_cost > 100000) {
+                    continue;
+                }
+                childNodes = new ArrayList<>();
+                childNodes = currNode.generateChildNodes();
+                // Reverse the order of childNodes to maintain the order of DFS
+                Collections.reverse(childNodes);
+                if(visualize){
+                    visualize(currNode, null);
+                }
+                for (Node childNode : childNodes) {
+                    if (childNode != null && !explored.contains(childNode)) {
+                        if(visualize)
+                            visualize(null, childNode);
+                        frontier.add(childNode);
+                    }
+                }
+            }
+        }
+        Object[] result = new Object[]{null, explored.size()};
+        return result;
+    }
     public static String Generic(String QingFunc,boolean visualize){
         if ( QingFunc.equals("BF")){
             Object[] result = bfs(visualize);
@@ -172,11 +298,35 @@ public abstract class GenericSearch {
             Object[] result = dfs(visualize);
             return GenerateSolution(result);
         }
+        if ( QingFunc.equals("ID")){
+            Object[] result = ids(visualize);
+            return GenerateSolution(result);
+        }
         if ( QingFunc.equals("UC")){
             Object[] result = ucs(visualize);
             return GenerateSolution(result);
         }
-        return "Hello";
+        if ( QingFunc.equals("GR1")){
+            Object[] result = greedy(1,visualize);
+            return GenerateSolution(result);
+
+        }
+        if ( QingFunc.equals("GR2")){
+            Object[] result = greedy(2,visualize);
+            return GenerateSolution(result);
+
+        }
+        if ( QingFunc.equals("AS1")){
+            Object[] result = A_star(1,visualize);
+            return GenerateSolution(result);
+
+        }
+        if ( QingFunc.equals("AS2")){
+            Object[] result = A_star(2,visualize);
+            return GenerateSolution(result);
+
+        }
+        return "You didn't enter a valid search algorithm";
     }
     public static String GenerateSolution(Object[] res ){
         StringBuilder sb = new StringBuilder();
@@ -203,7 +353,19 @@ public abstract class GenericSearch {
         return sb.toString();
 
     }
+    public static void visualize(Node currNode, Node childNode){
+        if(currNode!=null){
+            System.out.println("Current: " + currNode.state + " " + currNode.action + " " + currNode.depth +" " + (currNode.parentNode==null? "":
+                    " Parent: " + currNode.parentNode.state + " "
+                            + currNode.parentNode.action + " " + currNode.parentNode.depth)
+                    +(currNode.parentNode==null? "": currNode.parentNode.parentNode==null?"":
+                    " GParent: " + currNode.parentNode.parentNode.action + " " + currNode.parentNode.parentNode.depth));
 
+        }
+        else if(childNode!=null){
+            System.out.println("CHILDREN: " + childNode.state + " " + childNode.action + " " + childNode.depth );
+        }
+    }
     public boolean GoalTest(Node n ){
         if(n.state.prosperity>=100){
             return true;
