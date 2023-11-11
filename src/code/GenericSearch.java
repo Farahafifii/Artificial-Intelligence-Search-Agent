@@ -5,15 +5,9 @@ import java.util.*;
 public abstract class GenericSearch {
     public static Node currNode; //initial State
     public static List<Node> childNodes; //State Space
-    public static int unitPriceFood, unitPriceMaterials, unitPriceEnergy;
-    public static int amountRequestFood, delayRequestFood;
-    public static int amountRequestMaterials, delayRequestMaterials;
-    public static int amountRequestEnergy, delayRequestEnergy;
-    public static int priceBUILD1, foodUseBUILD1;
-    public static int materialsUseBUILD1, energyUseBUILD1, prosperityBUILD1;
-    public static int priceBUILD2, foodUseBUILD2;
-    public static int materialsUseBUILD2, energyUseBUILD2, prosperityBUILD2;
-    public static int food,prosperity,materials,energy;
+    public static int unitPriceFood, unitPriceMaterials, unitPriceEnergy , amountRequestFood, delayRequestFood , amountRequestMaterials, delayRequestMaterials, amountRequestEnergy, delayRequestEnergy;
+    public static int priceBUILD1, foodUseBUILD1,  materialsUseBUILD1, energyUseBUILD1, prosperityBUILD1;
+    public static int priceBUILD2, foodUseBUILD2,materialsUseBUILD2, energyUseBUILD2, prosperityBUILD2, food,prosperity,materials,energy;
 
     public static void assignInitialVar(String[][] state){
         prosperity = Integer.parseInt(state[0][0]) ;
@@ -119,7 +113,47 @@ public abstract class GenericSearch {
         Object[] result = new Object[]{null, explored.size()};
         return result;
     }
+    public static Object[] ucs(boolean visualize) {
+        PriorityQueue<Node> frontier = new PriorityQueue<>(Comparator.comparingInt(node -> currNode.state.monetary_cost));
+        frontier.add(currNode);
+        Set<Node> explored = new HashSet<>();
 
+        while (!frontier.isEmpty()) {
+            Node node = frontier.poll();
+            currNode = node;
+            State state = currNode.state;
+            if (state.prosperity == 100) {
+                Object[] result = new Object[]{node, explored.size()};
+                return result;
+            }
+            if (!explored.contains(node)) {
+                explored.add(node);
+                if (currNode.state.food == 0 || currNode.state.materials == 0 || currNode.state.energy == 0 || currNode.state.monetary_cost > 100000) {
+                    continue;
+                }
+                childNodes = new ArrayList<>();
+                childNodes = currNode.generateChildNodes();
+                // Reverse the order of childNodes to maintain the order of DFS
+                Collections.reverse(childNodes);
+                if(visualize){
+                    System.out.println("Current: " + currNode.state + " " + currNode.action + " " + currNode.depth +" " + (currNode.parentNode==null? "":
+                            " Parent: " + currNode.parentNode.state + " "
+                                    + currNode.parentNode.action + " " + currNode.parentNode.depth)
+                            +(currNode.parentNode==null? "": currNode.parentNode.parentNode==null?"":
+                            " GParent: " + currNode.parentNode.parentNode.action + " " + currNode.parentNode.parentNode.depth));
+                }
+                for (Node childNode : childNodes) {
+                    if (childNode != null && !explored.contains(childNode)) {
+                        if(visualize)
+                            System.out.println("CHILDREN: " + childNode.state + " " + childNode.action + " " + childNode.depth );
+                        frontier.add(childNode);
+                    }
+                }
+            }
+        }
+        Object[] result = new Object[]{null, explored.size()};
+        return result;
+    }
 
     public static String Generic(String QingFunc,boolean visualize){
         if ( QingFunc.equals("BF")){
@@ -136,6 +170,10 @@ public abstract class GenericSearch {
         }
         if ( QingFunc.equals("DF")){
             Object[] result = dfs(visualize);
+            return GenerateSolution(result);
+        }
+        if ( QingFunc.equals("UC")){
+            Object[] result = ucs(visualize);
             return GenerateSolution(result);
         }
         return "Hello";
