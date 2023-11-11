@@ -75,12 +75,10 @@ public abstract class GenericSearch {
                 childNodes = null;
             }
         }
-//        System.out.println("siize: "+ explored.size());
         Object[] result =new Object[]{null,explored.size()};
         return result;
     }
-    public static Object[] dfs() {
-//        Stack<Node> frontier = new Stack<>();
+    public static Object[] dfs(boolean visualize ) {
         PriorityQueue<Node> frontier = new PriorityQueue<>(Comparator.comparingInt(node -> -node.depth));
         frontier.add(currNode);
         Set<Node> explored = new HashSet<>();
@@ -89,9 +87,7 @@ public abstract class GenericSearch {
             Node node = frontier.poll();
             currNode = node;
             State state = currNode.state;
-//            System.out.println("Current: " + currNode.state + " " + currNode.action + " " + currNode.depth + " " + currNode.currDelay);
             if (state.prosperity == 100) {
-//                System.out.println("Number of Explored Nodes: " + explored.size());
                 Object[] result = new Object[]{node, explored.size()};
                 return result;
             }
@@ -104,17 +100,22 @@ public abstract class GenericSearch {
                 childNodes = currNode.generateChildNodes();
                 // Reverse the order of childNodes to maintain the order of DFS
                 Collections.reverse(childNodes);
-
+                if(visualize){
+                    System.out.println("Current: " + currNode.state + " " + currNode.action + " " + currNode.depth +" " + (currNode.parentNode==null? "":
+                            " Parent: " + currNode.parentNode.state + " "
+                                    + currNode.parentNode.action + " " + currNode.parentNode.depth)
+                            +(currNode.parentNode==null? "": currNode.parentNode.parentNode==null?"":
+                            " GParent: " + currNode.parentNode.parentNode.action + " " + currNode.parentNode.parentNode.depth));
+                }
                 for (Node childNode : childNodes) {
-//                    System.out.println("CHILDREN: " + childNode.state + " " + childNode.action + " " + childNode.depth);
                     if (childNode != null && !explored.contains(childNode)) {
+                        if(visualize)
+                            System.out.println("CHILDREN: " + childNode.state + " " + childNode.action + " " + childNode.depth );
                         frontier.add(childNode);
                     }
                 }
             }
         }
-
-//        System.out.println("size: " + explored.size());
         Object[] result = new Object[]{null, explored.size()};
         return result;
     }
@@ -130,12 +131,11 @@ public abstract class GenericSearch {
                 z=z.parentNode ;
                 if(z==null) break;
                 System.out.println("--->Depth: " + z.depth + z);
-
             }
             return GenerateSolution(result);
         }
         if ( QingFunc.equals("DF")){
-            Object[] result = dfs();
+            Object[] result = dfs(visualize);
             return GenerateSolution(result);
         }
         return "Hello";
