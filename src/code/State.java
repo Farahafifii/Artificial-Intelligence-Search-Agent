@@ -1,11 +1,10 @@
-package Code;
+package code;
 public class State {
     public int food;
     public int materials;
     public int energy;
     public int prosperity;
     public int monetary_cost;
-
 
     // Constructor
     public State(int foodLevel, int materialsLevel, int energyLevel, int prosperityLevel, int monetary_cost) {

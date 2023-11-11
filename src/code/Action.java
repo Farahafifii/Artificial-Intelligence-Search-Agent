@@ -1,4 +1,4 @@
-package Code;
+package code;
 
 public enum Action {
     REQUEST_FOOD,

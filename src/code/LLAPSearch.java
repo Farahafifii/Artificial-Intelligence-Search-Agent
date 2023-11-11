@@ -1,6 +1,4 @@
-package Code;
-
-import Code.GenericSearch;
+package code;
 
 public abstract class LLAPSearch extends GenericSearch {
 	public LLAPSearch() {
@@ -25,7 +23,8 @@ public abstract class LLAPSearch extends GenericSearch {
 
 	public static String solve(String initialState, String strategy, Boolean visualize) {
 		initializeNode(initialState);
-		GenericSearch.Generic(strategy) ;
-		return "BUILD1,BUILD1,BUILD1;1050;64";
+		String s = GenericSearch.Generic(strategy);
+		System.out.println(s);
+		return s;//"REQUESTFOOD,WAIT,WAIT,REQUESTMATERIALS,BUILD2,WAIT,REQUESTFOOD,BUILD1;3730;681" ;//"BUILD1,BUILD1,BUILD1;2943;64";
 	}
 }

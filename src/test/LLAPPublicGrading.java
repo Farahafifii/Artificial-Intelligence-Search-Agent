@@ -1,11 +1,11 @@
-package Test;
+package test;
 import static org.junit.Assert.*;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import Code.LLAPSearch;
+import code.LLAPSearch;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 
