@@ -119,7 +119,7 @@ public abstract class GenericSearch {
         return result;
     }
     public static Object[] ids(boolean visualize) {
-        int maxDepth = 1000; // Set a maximum depth limit or use an appropriate value
+        int maxDepth = 10000; // Set a maximum depth limit or use an appropriate value
         for (int depth = 0; depth <= maxDepth; depth++) {
             PriorityQueue<Node> frontier = new PriorityQueue<>(Comparator.comparingInt(node -> -node.depth));
             frontier.add(currNode);
