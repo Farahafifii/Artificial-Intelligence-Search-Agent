@@ -1,7 +1,9 @@
 package code;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.PriorityQueue;
 
 public class Node {
     public State state ;
@@ -23,12 +25,12 @@ public class Node {
         }
         this.action = action;
 }
-public List<Node> generateChildNodes() {
-    List<Node> children = new ArrayList<>();
+public PriorityQueue<Node> generateChildNodes() {
+//    List<Node> children = new ArrayList<>();
+    PriorityQueue<Node> children = new PriorityQueue<>(Comparator.comparingInt(node -> -node.depth));
     if (this.delayEnergy == 0 && this.delayFood == 0 && this.delayMaterials == 0) {
         for (Action a : Action.values()) {
             if (!(a == Action.WAIT)) {
-
                 State newState = new State( this.state.food, this.state.materials, this.state.energy, this.state.prosperity, this.state.monetary_cost);
                 newState = applyAction(newState, a);
                 if (newState != null) {
@@ -78,8 +80,6 @@ public List<Node> generateChildNodes() {
     }
     return  children;
 }
-
-
     public State applyAction(State newState , Action currAction){
         if (currAction == Action.REQUEST_ENERGY){
             newState = RequestEnergy(newState);
@@ -193,6 +193,18 @@ public List<Node> generateChildNodes() {
         sb.append(", action=").append(action);
         sb.append(", depth=").append(depth);
         sb.append("} <--");
+        return sb.toString();
+    }
+    public String toString2() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("state=").append("State{" +
+                "food=" + state.food +
+                ", materials=" + state.materials +
+                ", energy=" + state.energy +
+                ", prosperity=" + state.prosperity +
+                ", monetary_cost=" + state.monetary_cost +
+                '}');
+        sb.append(", depth=").append(depth);
         return sb.toString();
     }
 
