@@ -8,10 +8,10 @@ public class Node {
     public Node parentNode;
     public Action action;
     public int depth = 0 ;
-//    public int pathCost = 0 ;
     public int delayFood  = 0 ;
     public int delayEnergy = 0 ;
     public int delayMaterials = 0 ;
+
     public Node(State state, Node parentnode,Action action) {
         this.state = state ;
         this.parentNode = parentnode ;
@@ -28,7 +28,8 @@ public List<Node> generateChildNodes() {
     if (this.delayEnergy == 0 && this.delayFood == 0 && this.delayMaterials == 0) {
         for (Action a : Action.values()) {
             if (!(a == Action.WAIT)) {
-                State newState = new State(this.state.food, this.state.materials, this.state.energy, this.state.prosperity, this.state.monetary_cost);
+
+                State newState = new State( this.state.food, this.state.materials, this.state.energy, this.state.prosperity, this.state.monetary_cost);
                 newState = applyAction(newState, a);
                 if (newState != null) {
                     Node newNode = new Node(newState, GenericSearch.currNode, a);
@@ -46,7 +47,7 @@ public List<Node> generateChildNodes() {
     } else if (this.delayEnergy > 0 || this.delayFood > 0 || this.delayMaterials > 0) {
         for (Action a : Action.values()) {
             if (!(a == Action.REQUEST_FOOD) && !(a == Action.REQUEST_ENERGY) && !(a == Action.REQUEST_MATERIALS)) {
-                State newState = new State(this.state.food, this.state.materials, this.state.energy, this.state.prosperity, this.state.monetary_cost);
+                State newState = new State( this.state.food, this.state.materials, this.state.energy, this.state.prosperity, this.state.monetary_cost);
                 Node newNode = new Node(newState, this, a);
                 if (this.delayFood > 0) {
                     newNode.delayFood = this.delayFood - 1;

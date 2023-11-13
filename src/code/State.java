@@ -11,17 +11,21 @@ public class State {
     public int admissible_heuristic1;
     public int admissible_heuristic2;
     // Constructor
-    public State(int foodLevel, int materialsLevel, int energyLevel, int prosperityLevel, int monetary_cost) {
-        Random random = new Random();
+
+
+    public State( int foodLevel, int materialsLevel, int energyLevel, int prosperityLevel, int monetary_cost) {
+
         this.food = foodLevel;
         this.materials = materialsLevel;
         this.energy = energyLevel;
         this.prosperity = prosperityLevel;
         this.monetary_cost = monetary_cost ;
-        this.heuristic1 = 1;
-        this.heuristic2 = 2;
-        this.admissible_heuristic1 = this.heuristic1 + this.monetary_cost;
-        this.admissible_heuristic2 = this.heuristic2 + this.monetary_cost;
+
+        this.heuristic1 =(int) Math.ceil( (100-this.prosperity) /GenericSearch.maxProperityBuild )*GenericSearch.minBuild;
+        this.heuristic2 = (int) Math.ceil((100-this.prosperity) /GenericSearch.maxProperityBuild )*(GenericSearch.minFood+GenericSearch.delayRequestFood)*(GenericSearch.unitPriceFood);
+        this.admissible_heuristic1= this.heuristic1*this.monetary_cost;
+        this.admissible_heuristic2= this.heuristic2*this.monetary_cost;
+
 
     }
     public String toString(){

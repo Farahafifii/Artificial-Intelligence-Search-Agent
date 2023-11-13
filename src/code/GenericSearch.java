@@ -8,6 +8,9 @@ public abstract class GenericSearch {
     public static int unitPriceFood, unitPriceMaterials, unitPriceEnergy , amountRequestFood, delayRequestFood , amountRequestMaterials, delayRequestMaterials, amountRequestEnergy, delayRequestEnergy;
     public static int priceBUILD1, foodUseBUILD1,  materialsUseBUILD1, energyUseBUILD1, prosperityBUILD1;
     public static int priceBUILD2, foodUseBUILD2,materialsUseBUILD2, energyUseBUILD2, prosperityBUILD2, food,prosperity,materials,energy;
+    public static int minBuild ;
+    public static int maxProperityBuild ;
+    public static int minFood ;
 
     public static void assignInitialVar(String[][] state){
         prosperity = Integer.parseInt(state[0][0]) ;
@@ -33,6 +36,9 @@ public abstract class GenericSearch {
         materialsUseBUILD2= Integer.parseInt(state[7][2]);
         energyUseBUILD2 = Integer.parseInt(state[7][3]);
         prosperityBUILD2 = Integer.parseInt(state[7][4]);
+        minBuild=priceBUILD1>priceBUILD2? priceBUILD2:priceBUILD1;
+        maxProperityBuild=prosperityBUILD1>prosperityBUILD2?prosperityBUILD1:prosperityBUILD2;
+        minFood=foodUseBUILD1>foodUseBUILD2?foodUseBUILD2:foodUseBUILD1;
     }
     public static Object[] bfs(boolean visualize) {
         PriorityQueue<Node> frontier = new PriorityQueue<>(Comparator.comparingInt(node -> node.depth));
@@ -75,6 +81,8 @@ public abstract class GenericSearch {
         Object[] result =new Object[]{null,explored.size()};
         return result;
     }
+
+
     public static Object[] dfs(boolean visualize ) {
         PriorityQueue<Node> frontier = new PriorityQueue<>(Comparator.comparingInt(node -> -node.depth));
         frontier.add(currNode);
