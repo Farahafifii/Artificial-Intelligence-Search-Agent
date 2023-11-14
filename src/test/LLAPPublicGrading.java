@@ -186,7 +186,7 @@ public class LLAPPublicGrading {
 		LLAPPlanChecker pc = new LLAPPlanChecker(initialState3);
 		assertTrue("The output actions do not lead to a goal state.", pc.applyPlan(initialState3, solution));
 	}
-//	@Test(timeout = 120000)
+//	@Test(timeout = 1200000)
 //	public void testb4() throws Exception {
 //		String solution = LLAPSearch.solve(initialState4, "DF", false);
 //	    solution = solution.replace(" ", "");
@@ -698,7 +698,7 @@ public class LLAPPublicGrading {
 //		LLAPPlanChecker pc = new LLAPPlanChecker(initialState9);
 //		assertTrue("The output actions do not lead to a goal state.", pc.applyPlan(initialState9, solution));
 //	}
-//	@Test(timeout = 120000)
+//	@Test(timeout = 1200000)
 //	public void testh10() throws Exception {
 //		String solution = LLAPSearch.solve(initialState10, "AS2", false);
 //		solution = solution.replace(" ", "");

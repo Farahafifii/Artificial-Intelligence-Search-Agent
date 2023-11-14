@@ -40,30 +40,38 @@ public abstract class GenericSearch {
         maxProperityBuild= Math.max(prosperityBUILD1, prosperityBUILD2);
         minFood= Math.min(foodUseBUILD1, foodUseBUILD2);
     }
+    public static int generateKey(String input) {
+        if (input == null) {
+            throw new IllegalArgumentException("Input string cannot be null.");
+        }
+
+        return input.hashCode();
+    }
     public static Object[] Search(PriorityQueue<Node> QingFunc ,boolean visualize) {
         QingFunc.add(currNode);
-        Set<String> explored = new HashSet<>();
+        Set<Integer> explored = new HashSet<>();
         while (!QingFunc.isEmpty()) {
             currNode= QingFunc.poll();
             if (currNode.state.prosperity == 100) {
                 System.out.println("Number of Explored Nodes: "+ explored.size());
                 return new Object[]{currNode,explored.size()};
             }
-            if (!explored.contains(currNode.toString2())) {
-                explored.add(currNode.toString());
-                childNodes = currNode.generateChildNodes();
-                if(visualize){
-                    visualize(currNode,null);
-                }
-                for (Node childNode : childNodes) {
-                    if(visualize)
-                        visualize(null,childNode);
-                    if (childNode != null && !explored.contains(childNode.toString2())) {
-                        QingFunc.add(childNode);
-                    }
-                }
-                childNodes = null;
+            if (explored.contains(currNode.toString2().hashCode())) {
+                continue;
             }
+            explored.add(currNode.toString().hashCode());
+            childNodes = currNode.generateChildNodes();
+            if(visualize){
+                visualize(currNode,null);
+            }
+            for (Node childNode : childNodes) {
+                if(visualize)
+                    visualize(null,childNode);
+                if (childNode != null && !explored.contains(childNode.toString2().hashCode())) {
+                    QingFunc.add(childNode);
+                }
+            }
+            childNodes = null;
         }
         return new Object[]{null,explored.size()};
     }
@@ -193,7 +201,7 @@ public abstract class GenericSearch {
         else return "You didn't enter a valid search algorithm";
 
         Object[] result = Search(Qing,visualize);
-        if(!visualize) {
+        if(visualize) {
             Node n = (Node) result[0];
             System.out.println("--->Depth: " + n.depth + n);
             Node z = n;

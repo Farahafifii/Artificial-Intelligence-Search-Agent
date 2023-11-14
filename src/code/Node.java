@@ -1,6 +1,4 @@
 package code;
-
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -103,7 +101,7 @@ public PriorityQueue<Node> generateChildNodes() {
         s.energy -- ;
         s.monetary_cost += GenericSearch.unitPriceMaterials + GenericSearch.unitPriceEnergy + GenericSearch.unitPriceFood;
         state.prosperity = Math.min(state.prosperity, 100);
-        if (s.food < 0 || s.materials < 0 || s.energy < 0  ) {
+        if (s.food < 0 || s.materials < 0 || s.energy < 0 || state.monetary_cost>100000 ) {
             return null ;
         }
         return s;
@@ -114,7 +112,7 @@ public PriorityQueue<Node> generateChildNodes() {
         state.energy -- ;
         state.monetary_cost += GenericSearch.unitPriceMaterials + GenericSearch.unitPriceEnergy + GenericSearch.unitPriceFood;
         state.prosperity = Math.min(state.prosperity, 100);
-        if (state.food < 0 || state.materials < 0 || state.energy < 0  ) {
+        if (state.food < 0 || state.materials < 0 || state.energy < 0 || state.monetary_cost>100000 ) {
             return null ;
         }
         return state ;
@@ -125,7 +123,7 @@ public PriorityQueue<Node> generateChildNodes() {
         state.energy -- ;
         state.monetary_cost += GenericSearch.unitPriceMaterials + GenericSearch.unitPriceEnergy + GenericSearch.unitPriceFood;
         state.prosperity = Math.min(state.prosperity, 100);
-        if (state.food < 0 || state.materials < 0 || state.energy < 0  ) {
+        if (state.food < 0 || state.materials < 0 || state.energy < 0 || state.monetary_cost>100000  ) {
             return null ;
         }
         return state;
@@ -140,7 +138,7 @@ public PriorityQueue<Node> generateChildNodes() {
                 ( GenericSearch.foodUseBUILD1*GenericSearch.unitPriceFood)+
                 (GenericSearch.materialsUseBUILD1*GenericSearch.unitPriceMaterials) );
         state.prosperity = Math.min(state.prosperity, 100);
-        if (state.food < 0 || state.materials < 0 || state.energy < 0  ) {
+        if (state.food < 0 || state.materials < 0 || state.energy < 0 || state.monetary_cost>100000  ) {
             return null ;
         }
         return state ;
@@ -155,7 +153,7 @@ public PriorityQueue<Node> generateChildNodes() {
                 ( GenericSearch.foodUseBUILD2*GenericSearch.unitPriceFood)+
                 (GenericSearch.materialsUseBUILD2*GenericSearch.unitPriceMaterials) );
         state.prosperity = Math.min(state.prosperity, 100);
-        if (state.food < 0 || state.materials < 0 || state.energy < 0  ) {
+        if (state.food < 0 || state.materials < 0 || state.energy < 0 || state.monetary_cost>100000 ) {
             return null ;
         }
         return state;
@@ -165,7 +163,7 @@ public PriorityQueue<Node> generateChildNodes() {
         state.materials -- ;
         state.energy -- ;
         state.monetary_cost += GenericSearch.unitPriceMaterials + GenericSearch.unitPriceEnergy + GenericSearch.unitPriceFood;
-        if (state.food < 0 || state.materials < 0 || state.energy < 0  ) {
+        if (state.food < 0 || state.materials < 0 || state.energy < 0 || state.monetary_cost>100000 ) {
             return null ;
         }
         return state;
@@ -204,7 +202,7 @@ public PriorityQueue<Node> generateChildNodes() {
                 ", prosperity=" + state.prosperity +
                 ", monetary_cost=" + state.monetary_cost +
                 '}');
-        sb.append(", depth=").append(depth);
+//        sb.append(", depth=").append(depth);
         return sb.toString();
     }
 
