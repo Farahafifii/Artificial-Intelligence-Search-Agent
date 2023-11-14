@@ -59,7 +59,7 @@ public abstract class GenericSearch {
             if (explored.contains(currNode.toString2().hashCode())) {
                 continue;
             }
-            explored.add(currNode.toString().hashCode());
+            explored.add(currNode.toString2().hashCode());
             childNodes = currNode.generateChildNodes();
             if(visualize){
                 visualize(currNode,null);
@@ -88,7 +88,7 @@ public abstract class GenericSearch {
     }
 
     private static Object[] depthLimitedSearch(Node initialNode, int depthLimit, boolean visualize) {
-        Set<String> explored = new HashSet<>();
+        Set<Integer> explored = new HashSet<>();
         PriorityQueue<Node> frontier =new PriorityQueue<>(Comparator.comparingInt(node -> -node.depth));
         frontier.add(initialNode);
 
@@ -99,8 +99,8 @@ public abstract class GenericSearch {
                 Object[] result = new Object[]{currNode, explored.size()};
                 return result;
             }
-            if (!explored.contains(currNode.toString2()) && currNode.depth <= depthLimit) {
-                explored.add(currNode.toString());
+            if (!explored.contains(currNode.toString2().hashCode()) && currNode.depth <= depthLimit) {
+                explored.add(currNode.toString2().hashCode());
                 if (currNode.state.food == 0 || currNode.state.materials == 0 || currNode.state.energy == 0 || currNode.state.monetary_cost > 100000) {
                     continue;
                 }
@@ -112,7 +112,7 @@ public abstract class GenericSearch {
                     if (visualize) {
                         visualize(null, childNode);
                     }
-                    if (childNode != null && !explored.contains(childNode.toString2())) {
+                    if (childNode != null && !explored.contains(childNode.toString2().hashCode())) {
                         childNode.depth = currNode.depth + 1;
                         frontier.add(childNode);
                     }
