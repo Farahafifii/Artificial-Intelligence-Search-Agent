@@ -73,21 +73,24 @@ public abstract class GenericSearch {
             }
             childNodes = null;
         }
+
         return new Object[]{null,explored.size()};
     }
     public static Object[] ids(boolean visualize) {
         int depthLimit = 0;
         Node initialNode = currNode;
+        int explored =  0;
         while (true) {
-            Object[] result = depthLimitedSearch(initialNode, depthLimit, visualize);
+            Object[] result = depthLimitedSearch(initialNode, depthLimit, visualize , explored);
             if (result[0] != null) {
                 return result;
             }
+            explored += (int) result[1];
             depthLimit++;
         }
     }
 
-    private static Object[] depthLimitedSearch(Node initialNode, int depthLimit, boolean visualize) {
+    private static Object[] depthLimitedSearch(Node initialNode, int depthLimit, boolean visualize, int exp) {
         Set<Integer> explored = new HashSet<>();
         PriorityQueue<Node> frontier =new PriorityQueue<>(Comparator.comparingInt(node -> -node.depth));
         frontier.add(initialNode);
@@ -95,15 +98,11 @@ public abstract class GenericSearch {
         while (!frontier.isEmpty()) {
             currNode = frontier.poll();
             if (currNode.state.prosperity == 100) {
-                System.out.println("Number of Explored Nodes: " + explored.size());
-                Object[] result = new Object[]{currNode, explored.size()};
-                return result;
+                System.out.println("Number of Explored Nodes: "+ (explored.size()+exp));
+                return new Object[]{currNode, (explored.size()+exp)};
             }
             if (!explored.contains(currNode.toString2().hashCode()) && currNode.depth <= depthLimit) {
                 explored.add(currNode.toString2().hashCode());
-                if (currNode.state.food == 0 || currNode.state.materials == 0 || currNode.state.energy == 0 || currNode.state.monetary_cost > 100000) {
-                    continue;
-                }
                 PriorityQueue<Node> childNodes = currNode.generateChildNodes();
                 if (visualize) {
                     visualize(currNode, null);
@@ -121,46 +120,6 @@ public abstract class GenericSearch {
         }
         return new Object[]{null, explored.size()};
     }
-
-//    public static Object[] ids(boolean visualize) {
-//        int maxDepth = 10000; // Set a maximum depth limit or use an appropriate value
-//        for (int depth = 0; depth <= maxDepth; depth++) {
-//            PriorityQueue<Node> frontier = new PriorityQueue<>(Comparator.comparingInt(node -> -node.depth));
-//            frontier.add(currNode);
-//            Set<Node> explored = new HashSet<>();
-//
-//            while (!frontier.isEmpty()) {
-//                Node node = frontier.poll();
-//                currNode = node;
-//                State state = currNode.state;
-//                if (state.prosperity == 100) {
-//                    return new Object[]{node, explored.size()};
-//                }
-//                if (!explored.contains(node) && node.depth <= depth) {
-//                    explored.add(node);
-//                    if (currNode.state.food == 0 || currNode.state.materials == 0 || currNode.state.energy == 0 || currNode.state.monetary_cost > 100000) {
-//                        continue;
-//                    }
-//                    List<Node> childNodes = node.generateChildNodes();
-//                    Collections.reverse(childNodes);
-//                    if (visualize) {
-//                        visualize(currNode, null);
-//                    }
-//                    for (Node childNode : childNodes) {
-//                        if (childNode != null && !explored.contains(childNode)) {
-//                            if (visualize) {
-//                                visualize(null, childNode);
-//                            }
-//                            frontier.add(childNode);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return new Object[]{null, 0}; // No solution found
-//    }
-
-
     public static String Generic(String QingFunc,boolean visualize){
         PriorityQueue<Node> Qing = null;
         if ( QingFunc.equals("BF")){
@@ -171,7 +130,7 @@ public abstract class GenericSearch {
         }
         else if ( QingFunc.equals("ID")){
             Object[] result = ids(visualize);
-            if(!visualize) {
+            if(visualize) {
                 Node n = (Node) result[0];
                 System.out.println("--->Depth: " + n.depth + n);
                 Node z = n;
