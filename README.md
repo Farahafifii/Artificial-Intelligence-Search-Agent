@@ -73,7 +73,7 @@ The search process resulted in finding a sequence of actions that lead to the to
    State: {food=30, materials=25, energy=19, prosperity=30, monetary_cost=0}
 
 ### Final Solution 
-- Actions: RequestFood, BUILD1, WAIT, RequestEnergy, BUILD2, RequestMaterials, BUILD1 /n
-- Monetary Cost: 18871 /n
+- Actions: RequestFood, BUILD1, WAIT, RequestEnergy, BUILD2, RequestMaterials, BUILD1
+- Monetary Cost: 18871 
 - Nodes Expanded: 502
 
